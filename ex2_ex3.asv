@@ -17,19 +17,28 @@ qmax = [2.8973;1.7628;2.8973;-0.0698;2.8973;3.7525;2.8973];
 bTe = getTransform(model.franka,[q_init',0,0],'panda_link7');%DO NOT EDIT 
 
 % Tool frame definition
+% eOt = ...;
 % eRt = ...;
 % eTt = ...;
+% bTt = ...;
 
-% Goal definition 
-% bOg = ...;
-% eRg = ...;
+%% Goal definition 
+bOg = [0.55; -0.3; 0.2]; %meters
+% goal frame rotation around y-axis of the e.e. initial configuration
+alpha = pi/6;
 
 % Switch between the two cases (with and without the tool frame)
 tool = false; % change to true for using the tool
 if tool == true
     %bTg = ...; % if controlling the tool frame
 else
-    %bTg = ...; % if controlling the ee frame
+    %controlling the ee frame
+    % transformation matrix of goal frame w.r.t. base
+    bTg = [ cos(alpha),  0, sin(alpha), bOg(1);
+            0,           1,          0, bOg(2);
+            -sin(alpha), 0, cos(alpha), bOg(3);
+            0,           0,          0,      1
+    ];
 end   
 
 % Control Proportional Gain 
@@ -63,12 +72,32 @@ for i = t
         bJe = tmp(1:6,1:7); %DO NOT EDIT
         % lin_err = ...
         % ang_err = ...
+        % cartesian error matrix between goal and ee, so eTg
+        eTg = inv(bTe) * bTg;
+        
+        % extract the rotation matrix bRe to use it for projection on the
+        % base frame
+        bRe = bTe(1:3,1:3);
+    
+        % extract the linear error from eTg and project it on the base
+        % frame
+        lin_err = bRe * eTg(1:3, 4);
+    
+        % extract the rotation error from eTg and convert it into angle-axis
+        % representation
+        eRg = eTg(1:3, 1:3);
+        [theta, v] = ComputeInverseAngleAxis(eRg);
+        % calculate the angular error by projecting it on the base frame
+        ang_err = bRe * theta * v';
     end
     
-       
     %% Compute the reference velocities
+    b_Omega_e0_des = angular_gain * ang_err;
+    b_v_e0_des = linear_gain * lin_err;
    
-    %% Compute desired joint velocities 
+    %% Compute desired joint velocities
+    x_dot = [b_Omega_e0_des; b_v_e0_des];
+    q_dot = bJe * x_dot;
     
     %% Simulate the robot - implement the function KinematicSimulation()
     q = KinematicSimulation(q(1:7), q_dot,ts, qmin, qmax);
