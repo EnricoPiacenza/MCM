@@ -26,4 +26,53 @@ for i = 1:numberOfLinks
 end
 
 % Computing end effector jacobian 
-J = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
+J0 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
+
+%% Repeat for each configuration from q1 to q4
+%q1
+% Compute direct geometry
+iTj_q1  = GetDirectGeometry(q1,geom_model,jointType,numberOfLinks);
+
+% Compute the transformation w.r.t. the base
+for i = 1:numberOfLinks
+    bTi(:,:,i) = GetTransformationWrtBase(iTj_q1,i);
+end
+
+% Computing end effector jacobian 
+J1 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
+
+%q2
+% Compute direct geometry
+iTj_q2  = GetDirectGeometry(q2,geom_model,jointType,numberOfLinks);
+
+% Compute the transformation w.r.t. the base
+for i = 1:numberOfLinks
+    bTi(:,:,i) = GetTransformationWrtBase(iTj_q2,i);
+end
+
+% Computing end effector jacobian 
+J2 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
+
+%q3
+% Compute direct geometry
+iTj_q3  = GetDirectGeometry(q3,geom_model,jointType,numberOfLinks);
+
+% Compute the transformation w.r.t. the base
+for i = 1:numberOfLinks
+    bTi(:,:,i) = GetTransformationWrtBase(iTj_q3,i);
+end
+
+% Computing end effector jacobian 
+J3 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
+
+%q4
+% Compute direct geometry
+iTj_q4  = GetDirectGeometry(q4,geom_model,jointType,numberOfLinks);
+
+% Compute the transformation w.r.t. the base
+for i = 1:numberOfLinks
+    bTi(:,:,i) = GetTransformationWrtBase(iTj_q4,i);
+end
+
+% Computing end effector jacobian 
+J4 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
