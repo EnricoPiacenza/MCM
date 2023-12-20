@@ -92,6 +92,8 @@ for i = t
     end
     
     %% Compute the reference velocities
+    % considering the fact the the goal does not move, so its velocities
+    % are 0
     b_Omega_e0_des = angular_gain * ang_err;
     b_v_e0_des = linear_gain * lin_err;
    
