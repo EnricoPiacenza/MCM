@@ -156,7 +156,7 @@ for i = t
     q_dot = pinv(Jacobian) * x_dot;
     
     %% Simulate the robot - implement the function KinematicSimulation()
-    q = KinematicSimulation(q, q_dot, ts, qmin, qmax);
+    q = KinematicSimulation(q(1:7), q_dot(1:7), ts, qmin, qmax);
     
     % DO NOT EDIT - plot the robot moving
     %switch visuals to off for seeing only the frames
