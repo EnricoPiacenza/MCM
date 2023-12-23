@@ -40,7 +40,7 @@ R_y = [cos(alpha),  0, sin(alpha);
        -sin(alpha), 0, cos(alpha)];
 
 % Switch between the two cases (with and without the tool frame)
-tool = true; % change to true for using the tool
+tool = false; % change to true for using the tool
 if tool == true
     bRg = bRt * R_y;
     bTg = [bRg bOg];
@@ -172,7 +172,6 @@ for i = t
     end
     hold off
     drawnow
-    disp(norm(x_dot))
     if(norm(x_dot) < 0.001)
         disp('REACHED THE REQUESTED GOAL POSITION')
         break
