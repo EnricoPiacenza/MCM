@@ -20,14 +20,15 @@ bTe = getTransform(model.franka,[q_init',0,0],'panda_link7');%DO NOT EDIT
 % Tool frame definition
 phi = -44.98 * pi/180;
 eOt = [0, 0, 0.2104]';
-eRt = [cos(phi) -sin(phi) 0;
-       sin(phi) cos(phi) 0;
-       0 0 1];
+eRt = [cos(phi) -sin(phi)  0;
+       sin(phi)  cos(phi)  0;
+         0         0       1];
+
 eTt = [eRt eOt];
 eTt = [eTt; 0 0 0 1];
+
 bTt = bTe * eTt;
 bRt = bTt(1:3,1:3);
-
 %% Goal definition 
 
 % Goal frame rotation around y-axis of the e.e. initial configuration
@@ -35,24 +36,21 @@ alpha = pi/6;
 bOg = [0.55; -0.3; 0.2]; % Meters
 
 R_y = [cos(alpha),  0, sin(alpha);
-            0,           1,          0;
+           0,       1,      0    ;
        -sin(alpha), 0, cos(alpha)];
-
-bRe = bTe(1:3,1:3);
 
 % Switch between the two cases (with and without the tool frame)
 tool = true; % change to true for using the tool
 if tool == true
     bRg = bRt * R_y;
-    bTg = bRg;
-    bTg = [bTg bOg];
+    bTg = [bRg bOg];
     bTg = [bTg; 0 0 0 1];
 else
+    bRe = bTe(1:3,1:3);
     % controlling the ee frame
     % transformation matrix of goal frame w.r.t. base
     bRg =  bRe * R_y ;
-    bTg = bRg;
-    bTg = [bTg bOg];
+    bTg = [bRg bOg];
     bTg = [bTg; 0 0 0 1];
 end   
 
@@ -70,15 +68,15 @@ q = q_init;
 for i = t
     
     if tool == true %compute the error between the tool frame and goal frame
-        
         % Computing transformation matrix from base to end effector 
         bTe = getTransform(model.franka,[q',0,0],'panda_link7'); %DO NOT EDIT
         tmp = geometricJacobian(model.franka,[q',0,0],'panda_link7'); %DO NOT EDIT
         bJe = tmp(1:6,1:7); %DO NOT EDIT
 
+        bRe = bTe(1:3,1:3);
         bOe = bTe(1:3,4);
 
-        % Computing Jacobian
+        % Computing rigid Jacobian
         b_ert = bRe * eOt;
         b_ertx = zeros(3,3);
 
@@ -90,11 +88,6 @@ for i = t
         b_ertx(1,3) = b_ert(2);
         b_ertx(2,3) = -b_ert(1);
 
-        bOt = bOe + b_ert;
-        % Updating bTt because the plot needs it
-        bTt(1:3,1:3) = bRt;
-        bTt(1:3,4) = bOt;
-
         % Rigid jacobian
         R_Jacobian = zeros(6,6);
         R_Jacobian(1:3,1:3) = eye(3);
@@ -104,18 +97,23 @@ for i = t
         % Jacobian
         bJt = R_Jacobian * bJe;
 
+        bTt = bTe * eTt;   %QUESTO é QUELLO CHE HO CAMBIATO
+        bRt = bTt(1:3,1:3);
+
         % Linear error
         tTg = pinv(bTt) * bTg;
-        % bRt = bTt(1:3,1:3);
-        % lin_err = bRt * tTg(1:3,4);
-        tOg = bOg - bTt(1:3,4);
-        lin_err = tOg;
+        lin_err = bRt * tTg(1:3,4);
 
         % Angular error
         tRg = tTg(1:3, 1:3);
         [theta, v] = ComputeInverseAngleAxis(tRg);
         % calculate the angular error by projecting it on the base frame
         ang_err = bRt * (theta * v)';
+
+        bOt = bOe + b_ert;   %ANCHE QUESTO L'HO SPOSTATO IN FONDO, SEMBRA FUNZIONARE
+        % Updating bTt because the plot needs it
+        bTt(1:3,1:3) = bRt;
+        bTt(1:3,4) = bOt;
 
         Jacobian = bJt;
     else 
@@ -158,7 +156,7 @@ for i = t
     q_dot = pinv(Jacobian) * x_dot;
     
     %% Simulate the robot - implement the function KinematicSimulation()
-    q = KinematicSimulation(q(1:7), q_dot(1:7), ts, qmin, qmax);
+    q = KinematicSimulation(q, q_dot, ts, qmin, qmax);
     
     % DO NOT EDIT - plot the robot moving
     %switch visuals to off for seeing only the frames
