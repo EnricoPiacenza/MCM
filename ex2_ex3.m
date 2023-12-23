@@ -40,7 +40,7 @@ R_y = [cos(alpha),  0, sin(alpha);
        -sin(alpha), 0, cos(alpha)];
 
 % Switch between the two cases (with and without the tool frame)
-tool = false; % change to true for using the tool
+tool = true; % change to true for using the tool
 if tool == true
     bRg = bRt * R_y;
     bTg = [bRg bOg];

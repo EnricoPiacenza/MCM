@@ -1,6 +1,6 @@
 %% Modelling and Control of Manipulator assignment 3: Inverse Kinematic Control
-
-model = load('include/panda.mat');% load the Franka Panda robot model
+addpath('include')
+model = load('panda.mat');% load the Franka Panda robot model
 ts = 0.5;
 t_start = 0.0;
 t_end = 30.0;
@@ -10,10 +10,10 @@ t = t_start:ts:t_end;
 q_init = [0.0167305,-0.762614,-0.0207622,-2.34352,-0.0305686,1.53975,0.753872]';%robot home configuration
 qmin = [-2.8973;-1.7628;-2.8973;-3.0718;-2.8973;-0.0175;-2.8973];
 qmax = [2.8973;1.7628;2.8973;-0.0698;2.8973;3.7525;2.8973];
-bTe = getTransform(model.franka,[q',0,0],'panda_link7'); %useful for save initial end-effector orientation w.r.t robot base
+bTe = getTransform(model.franka,[q_init',0,0],'panda_link7'); %useful for save initial end-effector orientation w.r.t robot base
 % goal definition 
 goal_XYZ = [0.6; 0.4; 0.4];
-bTg = [bTe(1:3,1:3)*rotation(0,0,-pi/4) goal_XYZ;0 0 0 1];
+bTg = [bTe(1:3,1:3)*rotation(0,0,-pi/4) goal_XYZ; 0 0 0 1];
 % control proportional gain 
 angular_gain = 0.2;
 linear_gain = 0.2;
