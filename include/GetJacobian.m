@@ -12,6 +12,7 @@ function J = GetJacobian(biTei, bTe, jointType)
 %
 % Output:
 % - J: end-effector jacobian matrix
+
 Ja = zeros(3,size(jointType,1));
 Jl = zeros(3,size(jointType,1));
 
