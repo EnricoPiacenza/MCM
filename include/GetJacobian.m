@@ -33,7 +33,7 @@ end
 for i = 1 : size(jointType,1)
 
     if(jointType(i) == 0)   % Rotational
-        irn = biTei(1:3,4,size(jointType,1)) - biTei(1:3,4,i);
+        irn = bTe(1:3,4) - biTei(1:3,4,i);
         Jl(:,i) = cross(biTei(1:3,3,i), irn);
     elseif(jointType(i) == 1)   % Prismatic
         Jl(:,i) = biTei(1:3,3,i);
