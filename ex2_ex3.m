@@ -1,4 +1,4 @@
-%% Modelling and Control of Manipulator assignment 3 - Exercise 2 and 3: Inverse Kinematic Control
+    %% Modelling and Control of Manipulator assignment 3 - Exercise 2 and 3: Inverse Kinematic Control
 clear; clc; close all;
 addpath('include')
 model = load("panda.mat"); % don't worry about eventual warnings!
