@@ -6,7 +6,7 @@ addpath('include');
 geom_model = BuildTree();
 numberOfLinks = size(geom_model,3); % Number of manipulator's links.
 jointType = zeros(numberOfLinks,1); % Specify two possible link type: Rotational, Prismatic.
-bTi = zeros(4,4,numberOfLinks);% Trasformation matrix i-th link w.r.t. base
+bTi = zeros(4,4,numberOfLinks); % Trasformation matrix i-th link w.r.t. base
 
 % Initial joint configuration 
 q0 = [1.3,1.3,1.3,1.3,1.3,1.3,1.3];
@@ -25,7 +25,7 @@ for i = 1 : numberOfLinks
 end
 
 % Computing end effector jacobian 
-J0 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType)
+J0 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
 
 %% Repeat for each configuration from q1 to q4
 % q1
@@ -38,7 +38,7 @@ for i = 1:numberOfLinks
 end
 
 % Computing end effector jacobian 
-J1 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType)
+J1 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
 
 %% q2
 % Compute direct geometry
@@ -50,7 +50,7 @@ for i = 1:numberOfLinks
 end
 
 % Computing end effector jacobian 
-J2 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType)
+J2 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
 
 %% q3
 % Compute direct geometry
@@ -62,7 +62,7 @@ for i = 1:numberOfLinks
 end
 
 % Computing end effector jacobian 
-J3 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType)
+J3 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);
 
 %% q4
 % Compute direct geometry
@@ -74,4 +74,4 @@ for i = 1:numberOfLinks
 end
 
 % Computing end effector jacobian 
-J4 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType)
+J4 = GetJacobian(bTi(:,:,1:7),bTi(:,:,7),jointType);

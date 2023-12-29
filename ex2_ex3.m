@@ -1,7 +1,9 @@
-    %% Modelling and Control of Manipulator assignment 3 - Exercise 2 and 3: Inverse Kinematic Control
+%% Modelling and Control of Manipulator assignment 3 - Exercise 2 and 3: Inverse Kinematic Control
+
 clear; clc; close all;
 addpath('include')
 model = load("panda.mat"); % don't worry about eventual warnings!
+
 % Simulation Parameters
 ts = 0.5;
 t_start = 0.0;
@@ -10,9 +12,11 @@ t = t_start:ts:t_end;
 
 % Initial Joints configuration
 q_init = [0.0167305,-0.762614,-0.0207622,-2.34352,-0.0305686,1.53975,0.753872]';
+
 % Joint limits
 qmin = [-2.8973;-1.7628;-2.8973;-3.0718;-2.8973;-0.0175;-2.8973];
 qmax = [2.8973;1.7628;2.8973;-0.0698;2.8973;3.7525;2.8973];
+
 % Function that gives the transformation from <base> to <e-e>, given a
 % configuration of the manipulator
 bTe = getTransform(model.franka,[q_init',0,0],'panda_link7');%DO NOT EDIT 
@@ -40,7 +44,7 @@ R_y = [cos(alpha),  0, sin(alpha);
        -sin(alpha), 0, cos(alpha)];
 
 % Switch between the two cases (with and without the tool frame)
-tool = false; % change to true for using the tool
+tool = true; % change to true for using the tool
 if tool == true
     bRg = bRt * R_y;
     bTg = [bRg bOg];
@@ -49,7 +53,7 @@ else
     bRe = bTe(1:3,1:3);
     % controlling the ee frame
     % transformation matrix of goal frame w.r.t. base
-    bRg =  bRe * R_y ;
+    bRg = bRe * R_y;
     bTg = [bRg bOg];
     bTg = [bTg; 0 0 0 1];
 end   
@@ -57,13 +61,14 @@ end
 % Control Proportional Gain 
 angular_gain = 0.2;
 linear_gain = 0.2;
+
 % Preallocation variables
 x_dot = zeros(6,1);
 lin_err = zeros(3,1);
 ang_err = zeros(3,1); 
+
 % Start the inverse kinematic control  
 q = q_init;
-
 %% Simulation Loop
 for i = t
     
@@ -98,6 +103,8 @@ for i = t
         % Jacobian
         bJt = R_Jacobian * bJe;
 
+        % Compute transformation and rotation matrices between base and
+        % tool
         bTt = bTe * eTt;
         bRt = bTt(1:3,1:3);
 
@@ -108,11 +115,11 @@ for i = t
         % Angular error
         tRg = tTg(1:3, 1:3);
         [theta, v] = ComputeInverseAngleAxis(tRg);
-        % calculate the angular error by projecting it on the base frame
+        % Calculate the angular error by projecting it on the base frame
         ang_err = bRt * (theta * v)';
 
+        % Updating the values of bTt for the plot
         bOt = bOe + b_ert;
-        % Updating bTt because the plot needs it
         bTt(1:3,1:3) = bRt;
         bTt(1:3,4) = bOt;
 
@@ -148,8 +155,7 @@ for i = t
     end
     
     %% Compute the reference velocities
-    % considering the fact the the goal does not move, so its velocities
-    % are 
+    % Considering that the goal does not move, so its velocities are 
     b_Omega_e0_des = angular_gain * ang_err;
     b_v_e0_des = linear_gain * lin_err;
    
@@ -161,7 +167,7 @@ for i = t
     q = KinematicSimulation(q(1:7), q_dot(1:7), ts, qmin, qmax);
     
     % DO NOT EDIT - plot the robot moving
-    %switch visuals to off for seeing only the frames
+    % switch visuals to off for seeing only the frames
     show(model.franka,[q',0,0],'visuals','on');
     hold on
     if tool == true
