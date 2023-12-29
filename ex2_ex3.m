@@ -40,7 +40,7 @@ R_y = [cos(alpha),  0, sin(alpha);
        -sin(alpha), 0, cos(alpha)];
 
 % Switch between the two cases (with and without the tool frame)
-tool = true; % change to true for using the tool
+tool = false; % change to true for using the tool
 if tool == true
     bRg = bRt * R_y;
     bTg = [bRg bOg];
@@ -67,7 +67,8 @@ q = q_init;
 %% Simulation Loop
 for i = t
     
-    if tool == true %compute the error between the tool frame and goal frame
+    if tool == true % Compute the error between the tool frame and goal frame
+
         % Computing transformation matrix from base to end effector 
         bTe = getTransform(model.franka,[q',0,0],'panda_link7'); %DO NOT EDIT
         tmp = geometricJacobian(model.franka,[q',0,0],'panda_link7'); %DO NOT EDIT
@@ -97,11 +98,11 @@ for i = t
         % Jacobian
         bJt = R_Jacobian * bJe;
 
-        bTt = bTe * eTt;   %QUESTO é QUELLO CHE HO CAMBIATO
+        bTt = bTe * eTt;
         bRt = bTt(1:3,1:3);
 
         % Linear error
-        tTg = pinv(bTt) * bTg;
+        tTg = inv(bTt) * bTg;
         lin_err = bRt * tTg(1:3,4);
 
         % Angular error
@@ -110,7 +111,7 @@ for i = t
         % calculate the angular error by projecting it on the base frame
         ang_err = bRt * (theta * v)';
 
-        bOt = bOe + b_ert;   %ANCHE QUESTO L'HO SPOSTATO IN FONDO, SEMBRA FUNZIONARE
+        bOt = bOe + b_ert;
         % Updating bTt because the plot needs it
         bTt(1:3,1:3) = bRt;
         bTt(1:3,4) = bOt;
@@ -123,8 +124,7 @@ for i = t
         % Computing end effector jacobian w.r.t. base
         tmp = geometricJacobian(model.franka,[q',0,0],'panda_link7'); %DO NOT EDIT
         bJe = tmp(1:6,1:7); %DO NOT EDIT
-        % lin_err = ...
-        % ang_err = ...
+
         % cartesian error matrix between goal and ee, so eTg
         eTg = pinv(bTe) * bTg;
         
@@ -140,8 +140,10 @@ for i = t
         % representation
         eRg = eTg(1:3, 1:3);
         [theta, v] = ComputeInverseAngleAxis(eRg);
+        
         % calculate the angular error by projecting it on the base frame
         ang_err = bRe * (theta * v)';
+
         Jacobian = tmp;
     end
     
@@ -163,12 +165,13 @@ for i = t
     show(model.franka,[q',0,0],'visuals','on');
     hold on
     if tool == true
+        
         %set the window size of the figure to "full-screen" for a better visualization
         plot3(bTt(1,4),bTt(2,4),bTt(3,4),'go','LineWidth',15);
         plot3(bOg(1),bOg(2),bOg(3),'ro','LineWidth',5);
     else
         plot3(bTe(1,4),bTe(2,4),bTe(3,4),'go','LineWidth',15);
-        plot3(bOg(1),bOg(2),bOg(3),'ro','LineWidth',5);
+        plot3(bOg(1),bOg(2),bOg(3),'ro','LineWidth',10);
     end
     hold off
     drawnow
